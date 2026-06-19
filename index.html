@@ -371,7 +371,7 @@ const MODEL = {
                rev:[.02,.04,.06], revU:[10281600,11632800,12987160]},
     },
     México: {
-      EXP:  {noAlcanza:70,   com:[300,350,420], umbV:null, umbFP:[8,12,16]},
+      EXP:  {noAlcanza:70,   com:[300,350,420], umbV:null, umbFP:[12,15,17]},
     },
     // Brasil: modelos separados por moneda
     Brasil_BRL: {
@@ -399,10 +399,10 @@ const MODEL = {
 // Extras AR Outbound (medio de pago)
 const AR_OUT_EXTRAS = {anual:9400, semestral:4700};
 // ── Fudo Pagos Lanzamiento MX — incentivo activación por AR Outbound (21 abr–31 may, ARS) ──
-const MX_FP_AR = {'Cami Roldán':5,'Ezequiel Altwergier':2,'Guido Whelan':6,'Tomás Fistzen':7,'Tono Romano':4};
+const MX_FP_AR = {'Cami Roldán':9,'Ezequiel Altwergier':3,'Guido Whelan':6,'Tomás Fistzen':8,'Tono Romano':5};
 const MX_FP_MODEL = {noAlcanza:7000, com:[17000,25000,30000,35000], umb:[5,10,15,20]}; // tarifa UNITARIA por activación; incentivo = tarifa × activaciones
 // ── Fudo Pagos Residuales — activación FP en cuentas SaaS viejas (AR Outbound) · unit × activaciones ──
-const RESID_FP_AR = {'Cami Roldán':23,'Ezequiel Altwergier':15,'Guido Whelan':17,'Tomás Fistzen':12,'Tono Romano':13};
+const RESID_FP_AR = {'Cami Roldán':24,'Ezequiel Altwergier':15,'Guido Whelan':17,'Tomás Fistzen':11,'Tono Romano':13};
 const RESID_MODEL = {noAlcanza:5000, com:[13000,16200,21350,24000], umb:[5,10,15,20]};
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -480,15 +480,15 @@ const CONCURSO = {
 };
 function concursoPremio(name){ return CONCURSO.premios[name] || 0; }
 
-// AR Outbound FP — Abril 2026 (fuente: HubSpot, ya que TL no revisa AR Out)
+// AR Outbound FP — Mayo 2026 (fuente: HubSpot, ya que TL no revisa AR Out)
 const AR_OUT_FP = {
-  'Cami Roldán': 2, 'Ezequiel Altwergier': 3, 'Guido Whelan': 5,
-  'Tomás Fistzen': 1, 'Tono Romano': 7,
+  'Cami Roldán': 5, 'Ezequiel Altwergier': 3, 'Guido Whelan': 7,
+  'Tomás Fistzen': 2, 'Tono Romano': 7,
 };
 
-// MX Inbound FP — Abril 2026 (HubSpot, driver FP desde abril)
+// MX Inbound FP — Mayo 2026 (HubSpot, driver FP desde abril)
 const MX_IN_FP = {
-  'Astrid Morales': 14, 'Daniela Cruz': 16, 'Kevin Melgarejo': 14,
+  'Astrid Morales': 13, 'Daniela Cruz': 12, 'Kevin Melgarejo': 15,
 };
 
 // Brasil: semanas de medición (sábado-viernes, marzo 2026)
@@ -507,6 +507,7 @@ const TO_COUNTS = {
   'Ismhael Arrieche': 9, 'Maira Aguilar': 6, 'Florencia Nodar': 4,
   'Brenda Vedoy': 3, 'Ezequiel Maidana': 4, 'Sofía Dallochio': 3,
   'Tatiana Amaya': 3,
+  'Cami Roldán': 2, // AR Outbound — 2 TO ajuste manual mayo, 10.000 ARS c/u
 };
 const CL_TO_COUNTS = {
   // Mayo 2026 — fuente: sheet TO. Inbound: solo Luz Delgado vendió; Outbound: Johanna/Luz Maiuri/Yicelis.
@@ -754,7 +755,7 @@ function buildResults(parsed){
       :0;
 
     // Tienda Online commission (AR Inbound + CL Inbound/Outbound)
-    const toCount=(pais==='Argentina'&&flow==='Inbound')?(TO_COUNTS[name]||0)
+    const toCount=(pais==='Argentina')?(TO_COUNTS[name]||0)
       :pais==='Chile'?(CL_TO_COUNTS[name]||0):0;
     const toRate=pais==='Argentina'?10000:(flow==='Inbound'?CL_IN_TO:CL_OUT_TO);
     const comTO=toCount*toRate;
@@ -1169,12 +1170,12 @@ function buildCarta(r){
     saasRows+=row('MPCs',null,'<span class="clickable" onclick="openDrill(\''+r.name+'\',\'mpc\')">'+fmt(r.saas)+'</span>');
     saasRows+=row('Total ventas',null,fmt(r.comSaaS),true);
   } else if(r.pais==='México'&&r.flow==='Inbound'){
-    // MX desde Abril 2026: driver FP (HubSpot), comisión = comUnit × fp
-    saasRows+=row('Terminales FP (HubSpot)',null,'<span class="clickable" onclick="openDrill(\''+r.name+'\',\'fp\')">'+fmt(r.fp)+'</span>');
+    // MX desde Abril 2026: FP (HubSpot) define el objetivo y la comisión unitaria; se multiplica por las ventas SaaS ganadas
+    saasRows+=row('Terminales FP (HubSpot)','Define el objetivo y la com. unitaria','<span class="clickable" onclick="openDrill(\''+r.name+'\',\'fp\')">'+fmt(r.fp)+'</span>');
     saasRows+=row('Objetivo alcanzado','Obj 1 = '+fmt(r.obj1Ref)+' FP',r.objetivo>0?'Obj '+r.objetivo:'No alcanza');
-    saasRows+=row('Comisión unitaria (por FP)',null,fmt(r.comUnit));
-    saasRows+=row('Ventas SaaS (MPCs)','Referencia · no afecta comisión','<span class="clickable" onclick="openDrill(\''+r.name+'\',\'mpc\')">'+fmt(r.saas)+'</span>');
-    saasRows+=row('Total ventas','comUnit × FP terminales',fmt(r.comSaaS),true);
+    saasRows+=row('Comisión unitaria','Según objetivo FP alcanzado',fmt(r.comUnit));
+    saasRows+=row('Ventas SaaS ganadas (MPCs)','Base que se multiplica','<span class="clickable" onclick="openDrill(\''+r.name+'\',\'mpc\')">'+fmt(r.saas)+'</span>');
+    saasRows+=row('Total ventas','comUnit × ventas SaaS ganadas',fmt(r.comSaaS),true);
   } else if(r.pais==='Brasil'&&r.cat==='BRL'){
     const mBRL=MODEL.Inbound.Brasil_BRL.EXP;
     const wLabels=['1/4–5/4','6/4–12/4','13/4–19/4','20/4–26/4','27/4–30/4'];
@@ -1230,8 +1231,8 @@ function buildCarta(r){
     sections+='<div class="carta-section"><div class="carta-section-title">Revenue</div>'+revRows+'</div>';
   }
 
-  // Tienda Online — AR Inbound
-  if(r.flow==='Inbound'&&r.pais==='Argentina'&&r.comTO>0){
+  // Tienda Online — AR (Inbound + Outbound con ajuste manual)
+  if(r.pais==='Argentina'&&r.comTO>0){
     let toRows='';
     toRows+=row('Cuentas TO',null,r.to);
     toRows+=row('Valor por cuenta','10.000 ARS','10.000');
@@ -1640,8 +1641,4 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 const PREV_DIFF = {
   'Luz Maiuri': [{amount:60000, label:'SaaS pendiente (mes anterior)', sub:'1 SaaS no liquidado en abril'}],
-  'Valentina Cabrera': [{amount:2400, label:'Pago 100% (one-time)', sub:'Completa el 20% retenido — sin FP, venta baja'}],
-};
-</script>
-</body>
-</html>
+  'Valentina Cabrera': [{amount:2400, label:'Pago 100% (one-time)', sub:'Completa 
